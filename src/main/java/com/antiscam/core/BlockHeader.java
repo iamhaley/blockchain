@@ -1,4 +1,4 @@
-package com.antifraud.core;
+package com.antiscam.core;
 
 /**
  * 块头结构

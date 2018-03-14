@@ -1,4 +1,4 @@
-package com.antifraud.constant;
+package com.antiscam.constant;
 
 /**
  * 常量类

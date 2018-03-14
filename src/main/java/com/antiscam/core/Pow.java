@@ -1,7 +1,7 @@
-package com.antifraud.core;
+package com.antiscam.core;
 
-import com.antifraud.constant.Constant;
-import com.antifraud.util.ByteUtil;
+import com.antiscam.constant.Constant;
+import com.antiscam.util.ByteUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
@@ -16,11 +16,11 @@ public class Pow {
     /**
      * 难度
      */
-    private Difficult difficult;
+    private Difficulty difficulty;
     /**
      * 块
      */
-    private Block     block;
+    private Block      block;
 
     /**
      * 构造工作量证明
@@ -28,7 +28,7 @@ public class Pow {
      * @param block 块信息
      */
     public Pow(Block block) {
-        this.difficult = new Difficult();
+        this.difficulty = new Difficulty();
         this.block = block;
     }
 
@@ -42,7 +42,7 @@ public class Pow {
 
         while (nonce < Long.MAX_VALUE) {
             String hash = getBlockHash(nonce);
-            if (new BigInteger(hash, Constant.RADIX_HEX).compareTo(this.difficult.getTarget()) < 0) {
+            if (new BigInteger(hash, Constant.RADIX_HEX).compareTo(this.difficulty.getTarget()) < 0) {
                 this.block.setHash(ByteUtil.toBytes(hash));
                 this.block.setNonce(nonce);
                 break;
@@ -62,7 +62,7 @@ public class Pow {
      */
     public boolean validate() throws IOException {
         String blockHash = getBlockHash(this.block.getNonce());
-        return new BigInteger(blockHash, Constant.RADIX_HEX).compareTo(this.difficult.getTarget()) < 0;
+        return new BigInteger(blockHash, Constant.RADIX_HEX).compareTo(this.difficulty.getTarget()) < 0;
     }
 
     /**
@@ -77,7 +77,7 @@ public class Pow {
                 this.block.getPreviousHash(),
                 this.block.getData().getBytes(),
                 ByteUtil.toBytes(this.block.getTimestamp()),
-                ByteUtil.toBytes(Difficult.targetBit),
+                ByteUtil.toBytes(Difficulty.targetBit),
                 ByteUtil.toBytes(nonce)
         ));
     }

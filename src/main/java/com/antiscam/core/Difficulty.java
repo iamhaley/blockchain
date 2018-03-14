@@ -1,11 +1,11 @@
-package com.antifraud.core;
+package com.antiscam.core;
 
 import java.math.BigInteger;
 
 /**
  * Pow难度
  */
-public class Difficult {
+public class Difficulty {
     /**
      * 目标位
      */
@@ -20,8 +20,8 @@ public class Difficult {
      * <p>
      * 对1进行移位运算，将1向左移动 (256 - targetBit) 位，得到难度目标值
      */
-    public Difficult() {
-        this.target = BigInteger.valueOf(1).shiftLeft((256 - Difficult.targetBit));
+    public Difficulty() {
+        this.target = BigInteger.valueOf(1).shiftLeft((256 - Difficulty.targetBit));
     }
 
     /**

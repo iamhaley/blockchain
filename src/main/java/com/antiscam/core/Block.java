@@ -1,10 +1,6 @@
-package com.antifraud.core;
-
-import com.antifraud.util.ByteUtil;
-import org.apache.commons.codec.digest.DigestUtils;
+package com.antiscam.core;
 
 import java.io.IOException;
-import java.math.BigInteger;
 
 /**
  * 块结构

@@ -1,4 +1,4 @@
-package com.antifraud.core;
+package com.antiscam.core;
 
 import java.io.IOException;
 import java.util.LinkedList;

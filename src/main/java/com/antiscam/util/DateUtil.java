@@ -1,4 +1,4 @@
-package com.antifraud.util;
+package com.antiscam.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

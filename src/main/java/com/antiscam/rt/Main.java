@@ -1,10 +1,10 @@
-package com.antifraud.rt;
+package com.antiscam.rt;
 
-import com.antifraud.core.Block;
-import com.antifraud.core.Blockchain;
-import com.antifraud.core.Pow;
-import com.antifraud.util.ByteUtil;
-import com.antifraud.util.DateUtil;
+import com.antiscam.core.Block;
+import com.antiscam.core.Blockchain;
+import com.antiscam.core.Pow;
+import com.antiscam.util.ByteUtil;
+import com.antiscam.util.DateUtil;
 
 import java.io.IOException;
 import java.text.ParseException;

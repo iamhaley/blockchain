@@ -1,6 +1,6 @@
-package com.antifraud.util;
+package com.antiscam.util;
 
-import com.antifraud.constant.Constant;
+import com.antiscam.constant.Constant;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
