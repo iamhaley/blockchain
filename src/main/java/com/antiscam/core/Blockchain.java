@@ -1,8 +1,10 @@
 package com.antiscam.core;
 
+import com.antiscam.store.DBHandler;
+import com.antiscam.util.ByteUtil;
+
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * 区块链结构
@@ -10,16 +12,26 @@ import java.util.List;
  * @author wuming
  */
 public class Blockchain {
-
-    List<Block> blockchain = new LinkedList<>();
+    /**
+     * 最新区块hash值
+     */
+    private String lastBlockHash;
 
     /**
      * 构造区块链
      *
      * @throws IOException 异常
      */
-    public Blockchain() throws IOException {
-        blockchain.add(Block.getInstance(null, "Genesis block."));
+    public Blockchain() throws Exception {
+        String lastBlockHash = DBHandler.getLastBlockHash();
+
+        if (null == lastBlockHash || lastBlockHash.trim().length() == 0) {
+            Block genesisBlock = Block.getInstance(null, "Genesis block");
+            DBHandler.putBlock(genesisBlock);
+            DBHandler.putLastBlockHash(ByteUtil.toString(genesisBlock.getHash()));
+        }
+
+        this.lastBlockHash = lastBlockHash;
     }
 
     /**
@@ -27,10 +39,11 @@ public class Blockchain {
      *
      * @param block 块信息
      */
-    public void add(Block block) {
-        assert null != blockchain && blockchain.size() > 0;
+    public void add(Block block) throws Exception {
+        DBHandler.putBlock(block);
+        DBHandler.putLastBlockHash(ByteUtil.toString(block.getHash()));
 
-        this.blockchain.add(block);
+        this.lastBlockHash = ByteUtil.toString(block.getHash());
     }
 
     /**
@@ -39,19 +52,82 @@ public class Blockchain {
      * @param data 交易信息
      * @throws IOException 异常
      */
-    public void add(String data) throws IOException {
+    public void add(String data) throws Exception {
         assert null != data && data.trim().length() > 0;
 
-        Block previousBlock = blockchain.get(blockchain.size() - 1);
-        this.add(Block.getInstance(previousBlock.getHash(), data));
+        String lastBlockHash = DBHandler.getLastBlockHash();
+        assert null != lastBlockHash && lastBlockHash.trim().length() > 0;
+
+        Block block = Block.getInstance(ByteUtil.toBytes(lastBlockHash), data);
+        this.add(block);
     }
 
     /**
-     * Getter for property 'blockchain'.
+     * Getter for property 'lastBlockHash'.
      *
-     * @return Value for property 'blockchain'.
+     * @return Value for property 'lastBlockHash'.
      */
-    public List<Block> getBlockchain() {
-        return blockchain;
+    public String getLastBlockHash() {
+        return lastBlockHash;
+    }
+
+    /**
+     * 获取迭代器
+     *
+     * @return 迭代器
+     */
+    public Itr getIterator() {
+        return new Itr(this.lastBlockHash);
+    }
+
+    /**
+     * 迭代器
+     * <p>
+     * 从当前区块逆序回溯至创世区块
+     * </p>
+     */
+    public class Itr implements Iterator<Block> {
+        /**
+         * 当前区块hash
+         */
+        private String currentBlockHash;
+
+        private Itr(String currentBlockHash) {
+            this.currentBlockHash = currentBlockHash;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (null == this.currentBlockHash || this.currentBlockHash.trim().length() == 0) {
+                return false;
+            }
+            try {
+                Block currentBlock = DBHandler.getBlock(this.currentBlockHash);
+                // if(区块非空 && (创世区块 || 前一区块非空)) return true
+                return null != currentBlock && (null == currentBlock.getPreviousHash() || null != DBHandler.getBlock(ByteUtil.toString(currentBlock.getPreviousHash())));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        public Block next() {
+            try {
+                Block currentBlock = DBHandler.getBlock(this.currentBlockHash);
+                if (null != currentBlock) {
+                    this.currentBlockHash = ByteUtil.toString(currentBlock.getPreviousHash());
+                    return currentBlock;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

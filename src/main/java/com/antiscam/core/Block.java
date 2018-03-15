@@ -17,6 +17,9 @@ public class Block {
      */
     private String      data;
 
+    private Block() {
+    }
+
     /**
      * 构造块
      *

@@ -23,6 +23,9 @@ public class BlockHeader {
      */
     private long   nonce;
 
+    private BlockHeader() {
+    }
+
     /**
      * 构造块头信息
      *

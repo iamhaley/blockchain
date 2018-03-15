@@ -4,6 +4,8 @@ import java.math.BigInteger;
 
 /**
  * Pow难度
+ *
+ * @author wuming
  */
 public class Difficulty {
     /**

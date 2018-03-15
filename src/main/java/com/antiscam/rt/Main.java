@@ -6,19 +6,19 @@ import com.antiscam.core.Pow;
 import com.antiscam.util.ByteUtil;
 import com.antiscam.util.DateUtil;
 
-import java.io.IOException;
-import java.text.ParseException;
-
 /**
  * 程式入口
  */
 public class Main {
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws Exception {
         Blockchain blockchain = new Blockchain();
         blockchain.add("Send 1 BTC to wuming");
         blockchain.add("Send 2 more BTC to xiaokai");
 
-        for (Block block : blockchain.getBlockchain()) {
+        Blockchain.Itr iterator = blockchain.getIterator();
+        while (iterator.hasNext()) {
+            Block block = iterator.next();
+
             System.out.println("Previous hash: " + ByteUtil.toString(block.getPreviousHash()));
             System.out.println("Data: " + block.getData());
             System.out.println("Time: " + DateUtil.longToDate(block.getTimestamp()));
@@ -27,5 +27,6 @@ public class Main {
             System.out.println("Pow valid: " + new Pow(block).validate());
             System.out.println();
         }
+
     }
 }
