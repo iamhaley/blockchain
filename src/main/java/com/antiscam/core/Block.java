@@ -54,7 +54,7 @@ public class Block {
      *
      * @return 当前hash值
      */
-    public byte[] getHash() {
+    public byte[] getHash() throws IOException {
         return this.header.getHash();
     }
 
@@ -63,7 +63,7 @@ public class Block {
      *
      * @return 前一区块hash值
      */
-    public byte[] getPreviousHash() {
+    public byte[] getPreviousHash() throws IOException {
         return this.header.getPreviousHash();
     }
 
@@ -94,7 +94,7 @@ public class Block {
      *
      * @param hash Value to set for property 'hash'.
      */
-    public void setHash(byte[] hash) {
+    public void setHash(byte[] hash) throws IOException {
         this.header.setHash(hash);
     }
 

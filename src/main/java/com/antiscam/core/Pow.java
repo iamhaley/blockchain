@@ -75,7 +75,7 @@ public class Pow {
     private String getBlockHash(long nonce) throws IOException {
         return DigestUtils.sha256Hex(ByteUtil.merge(
                 this.block.getPreviousHash(),
-                this.block.getData().getBytes(),
+                ByteUtil.toBytes(this.block.getData()),
                 ByteUtil.toBytes(this.block.getTimestamp()),
                 ByteUtil.toBytes(Difficulty.targetBit),
                 ByteUtil.toBytes(nonce)

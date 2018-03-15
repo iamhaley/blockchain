@@ -1,5 +1,9 @@
 package com.antiscam.core;
 
+import com.antiscam.util.ByteUtil;
+
+import java.io.IOException;
+
 /**
  * 块头结构
  *
@@ -32,8 +36,8 @@ public class BlockHeader {
      * @param previousHash 前一区块hash值
      * @param timestamp    时间戳
      */
-    public BlockHeader(byte[] previousHash, long timestamp) {
-        this.previousHash = previousHash;
+    public BlockHeader(byte[] previousHash, long timestamp) throws IOException {
+        this.previousHash = ByteUtil.merge(previousHash);
         this.timestamp = timestamp;
     }
 
@@ -42,8 +46,8 @@ public class BlockHeader {
      *
      * @return Value for property 'hash'.
      */
-    public byte[] getHash() {
-        return hash;
+    public byte[] getHash() throws IOException {
+        return ByteUtil.merge(hash);
     }
 
     /**
@@ -51,8 +55,8 @@ public class BlockHeader {
      *
      * @return Value for property 'previousHash'.
      */
-    public byte[] getPreviousHash() {
-        return previousHash;
+    public byte[] getPreviousHash() throws IOException {
+        return ByteUtil.merge(previousHash);
     }
 
     /**
@@ -69,8 +73,8 @@ public class BlockHeader {
      *
      * @param hash Value to set for property 'hash'.
      */
-    public void setHash(byte[] hash) {
-        this.hash = hash;
+    public void setHash(byte[] hash) throws IOException {
+        this.hash = ByteUtil.merge(hash);
     }
 
     /**
