@@ -37,7 +37,7 @@ public class BlockHeader {
      * @param timestamp    时间戳
      */
     public BlockHeader(byte[] previousHash, long timestamp) throws IOException {
-        this.previousHash = ByteUtil.merge(previousHash);
+        this.previousHash = ByteUtil.copy(previousHash);
         this.timestamp = timestamp;
     }
 
@@ -47,7 +47,7 @@ public class BlockHeader {
      * @return Value for property 'hash'.
      */
     public byte[] getHash() throws IOException {
-        return ByteUtil.merge(hash);
+        return ByteUtil.copy(hash);
     }
 
     /**
@@ -56,7 +56,7 @@ public class BlockHeader {
      * @return Value for property 'previousHash'.
      */
     public byte[] getPreviousHash() throws IOException {
-        return ByteUtil.merge(previousHash);
+        return ByteUtil.copy(previousHash);
     }
 
     /**
@@ -74,7 +74,7 @@ public class BlockHeader {
      * @param hash Value to set for property 'hash'.
      */
     public void setHash(byte[] hash) throws IOException {
-        this.hash = ByteUtil.merge(hash);
+        this.hash = ByteUtil.copy(hash);
     }
 
     /**

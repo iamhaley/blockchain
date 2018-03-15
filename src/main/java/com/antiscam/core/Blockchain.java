@@ -29,6 +29,7 @@ public class Blockchain {
             Block genesisBlock = Block.getInstance(null, "Genesis block");
             DBHandler.putBlock(genesisBlock);
             DBHandler.putLastBlockHash(ByteUtil.toString(genesisBlock.getHash()));
+            lastBlockHash = ByteUtil.toString(genesisBlock.getHash());
         }
 
         this.lastBlockHash = lastBlockHash;
@@ -86,7 +87,7 @@ public class Blockchain {
      * 从当前区块逆序回溯至创世区块
      * </p>
      */
-    public class Itr implements Iterator<Block> {
+    public static class Itr implements Iterator<Block> {
         /**
          * 当前区块hash
          */

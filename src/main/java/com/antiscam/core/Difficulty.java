@@ -11,7 +11,7 @@ public class Difficulty {
     /**
      * 目标位
      */
-    public static final int targetBit = 20;
+    public static final int targetBit = 10;
     /**
      * 目标值
      */

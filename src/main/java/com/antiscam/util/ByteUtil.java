@@ -10,6 +10,22 @@ import java.io.UnsupportedEncodingException;
  * 字节工具
  */
 public class ByteUtil {
+
+    /**
+     * 数组拷贝
+     *
+     * @param sourceBytes 源数组
+     * @return 拷贝数组
+     */
+    public static byte[] copy(byte[] sourceBytes) {
+        if (null == sourceBytes) {
+            return null;
+        }
+        byte[] desBytes = new byte[sourceBytes.length];
+        System.arraycopy(sourceBytes, 0, desBytes, 0, sourceBytes.length);
+        return desBytes;
+    }
+
     /**
      * 将多个字节数组合并成一个字节数组
      *
