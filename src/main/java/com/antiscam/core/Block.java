@@ -1,5 +1,11 @@
 package com.antiscam.core;
 
+import com.antiscam.tx.Transaction;
+import com.antiscam.util.ByteUtil;
+import com.sun.tools.javac.util.Assert;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.IOException;
 
 /**
@@ -11,42 +17,40 @@ public class Block {
     /**
      * 头信息
      */
-    private BlockHeader header;
+    BlockHeader   header;
     /**
-     * 数据
+     * 交易
      */
-    private String      data;
+    Transaction[] transactions;
 
-    private Block() {
+    Block() {
     }
 
     /**
      * 构造块
      *
-     * @param header 头信息
-     * @param data   交易信息
+     * @param header       头信息
+     * @param transactions 交易
      */
-    private Block(BlockHeader header, String data) {
+    private Block(BlockHeader header, Transaction[] transactions) {
         this.header = header;
-        this.data = data;
+        this.transactions = transactions;
     }
 
     /**
      * * 获取普通块
      *
-     * @param previousHash 前一区块hash值
-     * @param data         交易信息
+     * @param previousHash 前一区块hash
+     * @param transactions 交易
      * @return 普通块
      * @throws IOException 异常
      */
-    public static Block getInstance(byte[] previousHash, String data) throws IOException {
-        long  timestamp = System.currentTimeMillis();
-        Block block     = new Block(new BlockHeader(previousHash, timestamp), data);
+    static Block getInstance(byte[] previousHash, Transaction[] transactions) throws IOException {
+        Assert.check(null != previousHash && previousHash.length > 0);
+        Assert.check(null != transactions && transactions.length > 0);
 
-        Pow pow = new Pow(block);
-        pow.caculate();
-
-        return block;
+        long timestamp = System.currentTimeMillis();
+        return new Block(new BlockHeader(previousHash, timestamp), transactions);
     }
 
     /**
@@ -54,7 +58,7 @@ public class Block {
      *
      * @return 当前hash值
      */
-    public byte[] getHash() throws IOException {
+    public byte[] getHash() {
         return this.header.getHash();
     }
 
@@ -63,7 +67,7 @@ public class Block {
      *
      * @return 前一区块hash值
      */
-    public byte[] getPreviousHash() throws IOException {
+    public byte[] getPreviousHash() {
         return this.header.getPreviousHash();
     }
 
@@ -77,14 +81,35 @@ public class Block {
     }
 
     /**
-     * Getter for property 'data'.
+     * Getter for property 'transactions'.
      *
-     * @return Value for property 'data'.
+     * @return Value for property 'transactions'.
      */
-    public String getData() {
-        return data;
+    public Transaction[] getTransactions() {
+        return ArrayUtils.clone(transactions);
     }
 
+    /**
+     * 获取交易hash
+     *
+     * @return 交易hash
+     * @throws IOException 异常
+     */
+    byte[] getTransactionsHash() throws IOException {
+        Assert.check(null != this.transactions && this.transactions.length > 0);
+
+        byte[][] txIds = new byte[this.transactions.length][];
+        for (Transaction transaction : this.transactions) {
+            txIds = ArrayUtils.add(txIds, transaction.getTxId());
+        }
+        return ByteUtil.toBytes(DigestUtils.sha256Hex(ByteUtil.merge(txIds)));
+    }
+
+    /**
+     * 获取Pow计数器
+     *
+     * @return Pow计数器
+     */
     public long getNonce() {
         return this.header.getNonce();
     }
@@ -94,7 +119,7 @@ public class Block {
      *
      * @param hash Value to set for property 'hash'.
      */
-    public void setHash(byte[] hash) throws IOException {
+    void setHash(byte[] hash) {
         this.header.setHash(hash);
     }
 
@@ -103,7 +128,7 @@ public class Block {
      *
      * @param nonce Value to set for property 'nonce'.
      */
-    public void setNonce(long nonce) {
+    void setNonce(long nonce) {
         this.header.setNonce(nonce);
     }
 

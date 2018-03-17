@@ -7,11 +7,11 @@ import java.math.BigInteger;
  *
  * @author wuming
  */
-public class Difficulty {
+class Difficulty {
     /**
      * 目标位
      */
-    public static final int targetBit = 10;
+    static final int targetBit = 10;
     /**
      * 目标值
      */
@@ -22,7 +22,7 @@ public class Difficulty {
      * <p>
      * 对1进行移位运算，将1向左移动 (256 - targetBit) 位，得到难度目标值
      */
-    public Difficulty() {
+    Difficulty() {
         this.target = BigInteger.valueOf(1).shiftLeft((256 - Difficulty.targetBit));
     }
 
@@ -31,7 +31,7 @@ public class Difficulty {
      *
      * @return Value for property 'target'.
      */
-    public BigInteger getTarget() {
+    BigInteger getTarget() {
         return target;
     }
 }

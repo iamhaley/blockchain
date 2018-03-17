@@ -9,10 +9,10 @@ import org.rocksdb.RocksDBException;
  *
  * @author wuming
  */
-public class DB {
+class DB {
 
     /**
-     * 静态内部类单例
+     * 静态内部类实现单例
      */
     private static class DBHolder {
         private static final String DB_FILE = "blockchain.db";
@@ -32,7 +32,7 @@ public class DB {
      *
      * @return 数据库实例
      */
-    public static RocksDB getInstance() {
+    static RocksDB getInstance() {
         return DBHolder.database;
     }
 

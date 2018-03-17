@@ -33,11 +33,11 @@ public class Pow {
     }
 
     /**
-     * 挖矿, 计算符合目标的hash
+     * 计算符合目标的hash
      *
      * @throws IOException 异常
      */
-    public void caculate() throws IOException {
+    void calculate() throws IOException {
         long nonce = 0;
 
         while (nonce < Long.MAX_VALUE) {
@@ -57,7 +57,7 @@ public class Pow {
     /**
      * 区块有效性验证
      *
-     * @return true:有效 false:无效
+     * @return true: 有效, false: 无效
      * @throws IOException 异常
      */
     public boolean validate() throws IOException {
@@ -75,7 +75,7 @@ public class Pow {
     private String getBlockHash(long nonce) throws IOException {
         return DigestUtils.sha256Hex(ByteUtil.merge(
                 this.block.getPreviousHash(),
-                ByteUtil.toBytes(this.block.getData()),
+                this.block.getTransactionsHash(),
                 ByteUtil.toBytes(this.block.getTimestamp()),
                 ByteUtil.toBytes(Difficulty.targetBit),
                 ByteUtil.toBytes(nonce)

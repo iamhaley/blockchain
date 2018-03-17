@@ -2,14 +2,12 @@ package com.antiscam.core;
 
 import com.antiscam.util.ByteUtil;
 
-import java.io.IOException;
-
 /**
  * 块头结构
  *
  * @author wuming
  */
-public class BlockHeader {
+class BlockHeader {
     /**
      * 当前hash值
      */
@@ -36,7 +34,7 @@ public class BlockHeader {
      * @param previousHash 前一区块hash值
      * @param timestamp    时间戳
      */
-    public BlockHeader(byte[] previousHash, long timestamp) throws IOException {
+    BlockHeader(byte[] previousHash, long timestamp) {
         this.previousHash = ByteUtil.copy(previousHash);
         this.timestamp = timestamp;
     }
@@ -46,7 +44,7 @@ public class BlockHeader {
      *
      * @return Value for property 'hash'.
      */
-    public byte[] getHash() throws IOException {
+    byte[] getHash() {
         return ByteUtil.copy(hash);
     }
 
@@ -55,7 +53,7 @@ public class BlockHeader {
      *
      * @return Value for property 'previousHash'.
      */
-    public byte[] getPreviousHash() throws IOException {
+    byte[] getPreviousHash() {
         return ByteUtil.copy(previousHash);
     }
 
@@ -64,7 +62,7 @@ public class BlockHeader {
      *
      * @return Value for property 'timestamp'.
      */
-    public long getTimestamp() {
+    long getTimestamp() {
         return timestamp;
     }
 
@@ -73,7 +71,7 @@ public class BlockHeader {
      *
      * @param hash Value to set for property 'hash'.
      */
-    public void setHash(byte[] hash) throws IOException {
+    void setHash(byte[] hash) {
         this.hash = ByteUtil.copy(hash);
     }
 
@@ -82,7 +80,7 @@ public class BlockHeader {
      *
      * @return Value for property 'nonce'.
      */
-    public long getNonce() {
+    long getNonce() {
         return nonce;
     }
 
@@ -91,7 +89,7 @@ public class BlockHeader {
      *
      * @param nonce Value to set for property 'nonce'.
      */
-    public void setNonce(long nonce) {
+    void setNonce(long nonce) {
         this.nonce = nonce;
     }
 }

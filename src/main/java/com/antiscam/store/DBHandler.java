@@ -61,6 +61,13 @@ public class DBHandler {
         return blockBytes == null ? null : (Block) SerializeUtil.deserialize(blockBytes);
     }
 
+    /**
+     * 关闭数据库
+     */
+    public static void close() {
+        DB.getInstance().close();
+    }
+
     private DBHandler() {
     }
 }

@@ -12,6 +12,10 @@ public class Constant {
      * 16位
      */
     public static final int    RADIX_HEX     = 16;
+    /**
+     * 区块奖励
+     */
+    public static final int    SUBSIDIES     = 50;
 
     private Constant() {
     }
