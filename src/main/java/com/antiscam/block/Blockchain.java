@@ -1,13 +1,22 @@
-package com.antiscam.core;
+package com.antiscam.block;
 
+import com.antiscam.constant.Constant;
 import com.antiscam.store.DBHandler;
 import com.antiscam.tx.*;
+import com.antiscam.util.AssertUtil;
 import com.antiscam.util.ByteUtil;
-import com.sun.tools.javac.util.Assert;
+import com.antiscam.wallet.WalletHandler;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,9 +41,10 @@ public class Blockchain {
         String lastBlockHash = DBHandler.getLastBlockHash();
 
         if (null == lastBlockHash || lastBlockHash.trim().length() == 0) {
-            Coinbase     coinbase     = new Coinbase(address, "Coinbase transaction");
+            Coinbase     coinbase     = new Coinbase(address);
             GenesisBlock genesisBlock = GenesisBlock.getInstance(coinbase);
             add(genesisBlock);
+            System.out.println(address + " get coinbase, reward " + Constant.SUBSIDIES + ".");
         }
 
         this.lastBlockHash = lastBlockHash;
@@ -62,10 +72,15 @@ public class Blockchain {
      * @throws IOException 异常
      */
     public void mine(Transaction[] transactions) throws Exception {
-        Assert.check(null != transactions && transactions.length > 0);
+        AssertUtil.check(null != transactions && transactions.length > 0);
+
+        // 交易验证
+        for (Transaction transaction : transactions) {
+            AssertUtil.check(verifyTransaction(transaction), "verification failed");
+        }
 
         String lastBlockHash = DBHandler.getLastBlockHash();
-        Assert.check(null != lastBlockHash && lastBlockHash.trim().length() > 0);
+        AssertUtil.check(null != lastBlockHash && lastBlockHash.trim().length() > 0);
 
         Block block = Block.getInstance(ByteUtil.toBytes(lastBlockHash), transactions);
         this.add(block);
@@ -78,7 +93,9 @@ public class Blockchain {
      * @return 所有未花费交易输出
      */
     public TxOutput[] findUTXO(String address) {
-        Transaction[] unspentTransactions = findUnspentTransactions(address);
+        byte[] publicKeyHash = WalletHandler.getPublicKeyHash(address);
+
+        Transaction[] unspentTransactions = findUnspentTransactions(publicKeyHash);
         TxOutput[]    unspentTxOutputs    = {};
 
         if (unspentTransactions.length == 0) {
@@ -87,7 +104,7 @@ public class Blockchain {
 
         for (Transaction transaction : unspentTransactions) {
             for (TxOutput output : transaction.getOutputs()) {
-                if (output.canBeUnlockedWith(address)) {
+                if (output.isLockedWith(publicKeyHash)) {
                     unspentTxOutputs = ArrayUtils.add(unspentTxOutputs, output);
                 }
             }
@@ -99,13 +116,13 @@ public class Blockchain {
     /**
      * 根据地址查找所有未花费交易
      *
-     * @param address 地址
+     * @param publicKeyHash RipeMD160(SHA256(公钥))哈希值
      * @return 所有未花费交易
      */
-    private Transaction[] findUnspentTransactions(String address) {
+    private Transaction[] findUnspentTransactions(byte[] publicKeyHash) {
         Transaction[] unspentTransactions = {};
 
-        Map<String, int[]> spentTxOutputIndexMap = findSpentTransactionOutputs(address);
+        Map<String, int[]> spentTxOutputIndexMap = findSpentTransactionOutputs(publicKeyHash);
 
         Blockchain.Itr iterator = getIterator();
         while (iterator.hasNext()) {
@@ -118,7 +135,7 @@ public class Blockchain {
                     if (null != spentTxOutputIndexes && ArrayUtils.contains(spentTxOutputIndexes, txOutputIndex)) {
                         continue;
                     }
-                    if (transaction.getOutputs()[txOutputIndex].canBeUnlockedWith(address)) {
+                    if (transaction.getOutputs()[txOutputIndex].isLockedWith(publicKeyHash)) {
                         unspentTransactions = ArrayUtils.add(unspentTransactions, transaction);
                     }
                 }
@@ -131,10 +148,10 @@ public class Blockchain {
     /**
      * 根据地址查找所有已花费输出
      *
-     * @param address 地址
+     * @param publicKeyHash RipeMD160(SHA256(公钥))哈希值
      * @return 所有已花费输出
      */
-    private Map<String, int[]> findSpentTransactionOutputs(String address) {
+    private Map<String, int[]> findSpentTransactionOutputs(byte[] publicKeyHash) {
         // 交易Id --> 已花费输出索引集
         Map<String, int[]> spentTxOutputIndexMap = new HashMap<>();
 
@@ -146,7 +163,7 @@ public class Blockchain {
                     continue;
                 }
                 for (TxInput input : transaction.getInputs()) {
-                    if (!input.canUnlockOutputWith(address)) {
+                    if (!input.usesKey(publicKeyHash)) {
                         continue;
                     }
                     String inputTxIdHexStr    = Hex.encodeHexString(input.getTxId());
@@ -165,6 +182,66 @@ public class Blockchain {
     }
 
     /**
+     * 查询交易
+     *
+     * @param txId 交易ID
+     * @return 交易
+     */
+    private Transaction findTransaction(byte[] txId) {
+        Blockchain.Itr iterator = getIterator();
+        while (iterator.hasNext()) {
+            Block block = iterator.next();
+            for (Transaction transaction : block.getTransactions()) {
+                if (Arrays.equals(transaction.getTxId(), txId)) {
+                    return transaction;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 交易签名
+     *
+     * @param privateKey  私钥
+     * @param transaction 交易
+     * @throws NoSuchAlgorithmException 异常
+     * @throws NoSuchProviderException  异常
+     * @throws InvalidKeyException      异常
+     * @throws SignatureException       异常
+     */
+    public void signTransaction(BCECPrivateKey privateKey, Transaction transaction) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        Map<String, Transaction> previousTxMap = new HashMap<>();
+        for (TxInput input : transaction.getInputs()) {
+            Transaction previousTx = findTransaction(input.getTxId());
+            String      txIdHexStr = Hex.encodeHexString(previousTx.getTxId());
+            previousTxMap.put(txIdHexStr, previousTx);
+        }
+        transaction.sign(privateKey, previousTxMap);
+    }
+
+    /**
+     * 交易验签
+     *
+     * @param transaction 交易
+     * @return true: 验签通过, false: 未通过
+     * @throws NoSuchAlgorithmException 异常
+     * @throws NoSuchProviderException  异常
+     * @throws InvalidKeySpecException  异常
+     * @throws InvalidKeyException      异常
+     * @throws SignatureException       异常
+     */
+    public boolean verifyTransaction(Transaction transaction) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, InvalidKeyException, SignatureException {
+        Map<String, Transaction> previousTxMap = new HashMap<>();
+        for (TxInput input : transaction.getInputs()) {
+            Transaction previousTx = findTransaction(input.getTxId());
+            String      txIdHexStr = Hex.encodeHexString(previousTx.getTxId());
+            previousTxMap.put(txIdHexStr, previousTx);
+        }
+        return transaction.verify(previousTxMap);
+    }
+
+    /**
      * 构造账单
      *
      * @param address 地址
@@ -172,8 +249,10 @@ public class Blockchain {
      * @return 账单
      */
     public Bill buildBill(String address, int amount) {
-        Transaction[] unspentTransactions = findUnspentTransactions(address);
+        byte[] publicKeyHash = WalletHandler.getPublicKeyHash(address);
 
+        // 未花费交易
+        Transaction[] unspentTransactions = findUnspentTransactions(publicKeyHash);
         // 账单总额
         int accumulated = 0;
         // 未花费输出索引映射
@@ -184,7 +263,7 @@ public class Blockchain {
 
             for (int txOutputIndex = 0; txOutputIndex < transaction.getOutputs().length; txOutputIndex++) {
                 TxOutput output = transaction.getOutputs()[txOutputIndex];
-                if (output.canBeUnlockedWith(address) && accumulated < amount) {
+                if (output.isLockedWith(publicKeyHash) && accumulated < amount) {
                     accumulated += output.getValue();
 
                     int[] outputs = outputsMap.get(txIdHexStr);

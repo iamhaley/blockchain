@@ -1,8 +1,9 @@
 package com.antiscam.rt;
 
-import com.antiscam.core.Blockchain;
+import com.antiscam.block.Blockchain;
 import com.antiscam.tx.Transaction;
 import com.antiscam.tx.TxOutput;
+import com.antiscam.wallet.WalletHandler;
 
 /**
  * 客户端
@@ -10,10 +11,10 @@ import com.antiscam.tx.TxOutput;
 public class Client {
 
     public static void main(String[] args) throws Exception {
-        int wmBalance = getBalance("wuming");
-        int xkBalance = getBalance("xiaokai");
-        System.out.println("coins of wuming: " + wmBalance);
-        System.out.println("coins of xiaokai: " + xkBalance);
+        for (String address : WalletHandler.getAllAddress()) {
+            int balance = getBalance(address);
+            System.out.println("coins of " + address + ": " + balance);
+        }
 
 //        send("wuming", "xiaokai", 10);
 //        int wmBalance2 = getBalance("wuming");

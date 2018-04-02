@@ -16,6 +16,7 @@
 
         <commons.codec.version>1.11</commons.codec.version>
         <commons.lang3.version>3.7</commons.lang3.version>
+        <commons.is.version>2.6</commons.is.version>
 
         <kryo.version>4.0.1</kryo.version>
         <rocksdb.version>5.10.3</rocksdb.version>
@@ -28,6 +29,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- apache commons -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -37,6 +39,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.is.version}</version>
         </dependency>
 
         <!-- RocksDb -->
@@ -50,6 +57,12 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
             <version>${kryo.version}</version>
+        </dependency>
+        <!-- 开源轻量级密码术包 -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.59</version>
         </dependency>
     </dependencies>
 

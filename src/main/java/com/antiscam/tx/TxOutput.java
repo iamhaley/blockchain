@@ -1,5 +1,12 @@
 package com.antiscam.tx;
 
+import com.antiscam.util.ByteUtil;
+import com.antiscam.wallet.WalletHandler;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+
 /**
  * 交易输出
  *
@@ -12,9 +19,9 @@ public class TxOutput {
      */
     private int    value;
     /**
-     * 锁定脚本
+     * RipeMD160(SHA256(公钥))哈希值
      */
-    private String scriptPubKey;
+    private byte[] publicKeyHash;
 
     private TxOutput() {
     }
@@ -22,12 +29,43 @@ public class TxOutput {
     /**
      * 构造交易输出
      *
-     * @param value        价值
-     * @param scriptPubKey 锁定脚本
+     * @param value         价值
+     * @param publicKeyHash 公钥hash
      */
-    TxOutput(int value, String scriptPubKey) {
+    TxOutput(int value, byte[] publicKeyHash) {
         this.value = value;
-        this.scriptPubKey = scriptPubKey;
+        this.publicKeyHash = publicKeyHash;
+    }
+
+    /**
+     * 构造交易输出
+     *
+     * @param value   价值
+     * @param address 钱包地址
+     */
+    TxOutput(int value, String address) {
+        this.value = value;
+        this.publicKeyHash = WalletHandler.getPublicKeyHash(address);
+    }
+
+    /**
+     * 检查指定公钥与交易输出是否匹配
+     *
+     * @param publicKeyHash 公钥hash
+     * @return true: 匹配, false: 不匹配
+     */
+    public boolean isLockedWith(byte[] publicKeyHash) {
+        return Arrays.equals(this.publicKeyHash, publicKeyHash);
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return "value:" + value + ",publicKeyHash" + ByteUtil.toString(publicKeyHash);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return super.toString();
+        }
     }
 
     /**
@@ -40,17 +78,11 @@ public class TxOutput {
     }
 
     /**
-     * 是否可以解锁交易输出
+     * Getter for property 'publicKeyHash'.
      *
-     * @param unlockingData
-     * @return true: 可以, false: 不可以
+     * @return Value for property 'publicKeyHash'.
      */
-    public boolean canBeUnlockedWith(String unlockingData) {
-        return this.scriptPubKey.endsWith(unlockingData);
-    }
-
-    @Override
-    public String toString() {
-        return "value:" + value + ",scriptPubKey:" + scriptPubKey;
+    public byte[] getPublicKeyHash() {
+        return ArrayUtils.clone(publicKeyHash);
     }
 }

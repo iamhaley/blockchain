@@ -1,6 +1,6 @@
 package com.antiscam.store;
 
-import com.antiscam.core.Block;
+import com.antiscam.block.Block;
 import com.antiscam.util.ByteUtil;
 import com.antiscam.util.SerializeUtil;
 import org.rocksdb.RocksDBException;

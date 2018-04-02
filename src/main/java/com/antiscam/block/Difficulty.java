@@ -1,4 +1,4 @@
-package com.antiscam.core;
+package com.antiscam.block;
 
 import java.math.BigInteger;
 
@@ -20,7 +20,7 @@ class Difficulty {
     /**
      * 构造Pow难度
      * <p>
-     * 对1进行移位运算，将1向左移动 (256 - targetBit) 位，得到难度目标值
+     * 对1进行移位运算, 将1向左移动 (256 - targetBit) 位, 得到难度目标值
      */
     Difficulty() {
         this.target = BigInteger.valueOf(1).shiftLeft((256 - Difficulty.targetBit));

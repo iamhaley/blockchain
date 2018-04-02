@@ -5,7 +5,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 /**
- * 序列化工具
+ * 基于 Kryo 序列化工具
  */
 public class SerializeUtil {
 

@@ -1,4 +1,4 @@
-package com.antiscam.core;
+package com.antiscam.block;
 
 import com.antiscam.tx.Coinbase;
 import com.antiscam.tx.Transaction;

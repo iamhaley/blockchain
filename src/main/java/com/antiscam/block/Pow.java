@@ -1,4 +1,4 @@
-package com.antiscam.core;
+package com.antiscam.block;
 
 import com.antiscam.constant.Constant;
 import com.antiscam.util.ByteUtil;

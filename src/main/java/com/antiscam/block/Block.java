@@ -1,8 +1,8 @@
-package com.antiscam.core;
+package com.antiscam.block;
 
 import com.antiscam.tx.Transaction;
+import com.antiscam.util.AssertUtil;
 import com.antiscam.util.ByteUtil;
-import com.sun.tools.javac.util.Assert;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -46,8 +46,8 @@ public class Block {
      * @throws IOException 异常
      */
     static Block getInstance(byte[] previousHash, Transaction[] transactions) throws IOException {
-        Assert.check(null != previousHash && previousHash.length > 0);
-        Assert.check(null != transactions && transactions.length > 0);
+        AssertUtil.check(null != previousHash && previousHash.length > 0);
+        AssertUtil.check(null != transactions && transactions.length > 0);
 
         long timestamp = System.currentTimeMillis();
         return new Block(new BlockHeader(previousHash, timestamp), transactions);
@@ -96,7 +96,7 @@ public class Block {
      * @throws IOException 异常
      */
     byte[] getTransactionsHash() throws IOException {
-        Assert.check(null != this.transactions && this.transactions.length > 0);
+        AssertUtil.check(null != this.transactions && this.transactions.length > 0);
 
         byte[][] txIds = new byte[this.transactions.length][];
         for (Transaction transaction : this.transactions) {

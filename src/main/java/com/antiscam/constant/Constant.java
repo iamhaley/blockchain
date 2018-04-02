@@ -16,6 +16,10 @@ public class Constant {
      * 区块奖励
      */
     public static final int    SUBSIDIES     = 50;
+    /**
+     * 版本
+     */
+    public static final int    version       = 0;
 
     private Constant() {
     }

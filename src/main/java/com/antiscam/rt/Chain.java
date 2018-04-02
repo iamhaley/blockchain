@@ -1,16 +1,22 @@
 package com.antiscam.rt;
 
-import com.antiscam.core.Block;
-import com.antiscam.core.Blockchain;
-import com.antiscam.core.Pow;
+import com.antiscam.block.Block;
+import com.antiscam.block.Blockchain;
+import com.antiscam.block.Pow;
 import com.antiscam.util.ByteUtil;
 import com.antiscam.util.DateUtil;
+import com.antiscam.wallet.Wallet;
+import com.antiscam.wallet.WalletHandler;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class Chain {
 
     public static void main(String[] args) throws Exception {
-        Blockchain blockchain = new Blockchain("wuming");
+
+        Wallet wallet = WalletHandler.getWallet();
+        System.out.println("wallet address: " + wallet.getAddress());
+
+        Blockchain blockchain = new Blockchain(wallet.getAddress());
 
         Blockchain.Itr iterator = blockchain.getIterator();
         while (iterator.hasNext()) {
@@ -24,6 +30,7 @@ public class Chain {
             System.out.println("Pow valid: " + new Pow(block).validate());
             System.out.println();
         }
+
     }
 
 }
