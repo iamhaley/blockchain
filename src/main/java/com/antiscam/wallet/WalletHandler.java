@@ -1,9 +1,10 @@
 package com.antiscam.wallet;
 
-import com.antiscam.util.Base58Util;
-import com.antiscam.util.FileUtil;
-import com.antiscam.util.SerializeUtil;
+import com.antiscam.util.*;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 
+import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.util.*;
 
 /**
@@ -20,7 +21,7 @@ public class WalletHandler {
     private static final Map<String, Wallet> walletMap   = new HashMap<>();
 
     static {
-        load();
+        initLoad();
     }
 
     private WalletHandler() {
@@ -32,9 +33,14 @@ public class WalletHandler {
      * @return 钱包
      */
     public static Wallet getWallet() {
-        Wallet wallet  = new Wallet();
+        KeyPair    keyPair               = EncryptUtil.getKeyPair();
+        PrivateKey privateKey            = keyPair.getPrivate();
+        byte[]     uncompressedPublicKey = ((BCECPublicKey) keyPair.getPublic()).getQ().getEncoded(false);
+
+        Wallet wallet  = new Wallet(privateKey, uncompressedPublicKey);
         String address = wallet.getAddress();
         walletMap.put(address, wallet);
+
         flush();
         return wallet;
     }
@@ -75,6 +81,21 @@ public class WalletHandler {
     }
 
     /**
+     * 获取未压缩公钥
+     *
+     * @param address 地址
+     * @return 未压缩公钥
+     */
+    public static byte[] getUncompressedPublicKey(String address) {
+        // check address
+        Base58Util.decodeChecked(address);
+
+        Wallet wallet = getWallet(address);
+        AssertUtil.check(null != wallet);
+        return wallet.getUncompressedPublicKey();
+    }
+
+    /**
      * 将钱包存储至文件
      */
     private static void flush() {
@@ -88,7 +109,7 @@ public class WalletHandler {
      * 从文件读取钱包
      */
     @SuppressWarnings("unchecked")
-    private static void load() {
+    private static void initLoad() {
         byte[] fileBytes = FileUtil.read(WALLET_FILE);
         if (null == fileBytes || fileBytes.length == 0) {
             return;

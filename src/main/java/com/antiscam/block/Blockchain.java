@@ -8,13 +8,9 @@ import com.antiscam.util.ByteUtil;
 import com.antiscam.wallet.WalletHandler;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -210,7 +206,7 @@ public class Blockchain {
      * @throws InvalidKeyException      异常
      * @throws SignatureException       异常
      */
-    public void signTransaction(BCECPrivateKey privateKey, Transaction transaction) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void signTransaction(PrivateKey privateKey, Transaction transaction) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException {
         Map<String, Transaction> previousTxMap = new HashMap<>();
         for (TxInput input : transaction.getInputs()) {
             Transaction previousTx = findTransaction(input.getTxId());

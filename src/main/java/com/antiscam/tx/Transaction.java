@@ -11,9 +11,7 @@ import com.antiscam.wallet.WalletHandler;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
@@ -97,7 +95,7 @@ public class Transaction {
             int[]  txOutputIndexes = entry.getValue();
             byte[] txId            = Hex.decodeHex(txIdHexStr);
             for (int txOutputIndex : txOutputIndexes) {
-                inputs = ArrayUtils.add(inputs, new TxInput(txId, txOutputIndex, null, fromWallet.getPublicKey()));
+                inputs = ArrayUtils.add(inputs, new TxInput(txId, txOutputIndex, null, fromWallet.getUncompressedPublicKey()));
             }
         }
 
@@ -138,7 +136,7 @@ public class Transaction {
      * @param privateKey    私钥
      * @param previousTxMap 前面多笔交易集合
      */
-    public void sign(BCECPrivateKey privateKey, Map<String, Transaction> previousTxMap) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public void sign(PrivateKey privateKey, Map<String, Transaction> previousTxMap) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // coinbase 不需要签名, 因为它不存在交易输入
         if (isCoinbase()) {
             return;
@@ -146,7 +144,7 @@ public class Transaction {
         // 获取当前交易副本
         Transaction trimmedTxCopy = trimmedTxCopy();
 
-        Signature signature = Signature.getInstance(Algorithm.SHA256WITHECDSA.getName(), BouncyCastleProvider.PROVIDER_NAME);
+        Signature signature = EncryptUtil.getSignature(Algorithm.SHA256WITHECDSA);
         signature.initSign(privateKey);
 
         for (int txCopyInputIndex = 0; txCopyInputIndex < trimmedTxCopy.inputs.length; txCopyInputIndex++) {
@@ -184,8 +182,8 @@ public class Transaction {
         Transaction trimmedTxCopy = trimmedTxCopy();
 
         ECParameterSpec ecSpec     = ECNamedCurveTable.getParameterSpec("secp256k1");
-        KeyFactory      keyFactory = KeyFactory.getInstance(Algorithm.ECDSA.getName(), BouncyCastleProvider.PROVIDER_NAME);
-        Signature       verify     = Signature.getInstance(Algorithm.SHA256WITHECDSA.getName(), BouncyCastleProvider.PROVIDER_NAME);
+        KeyFactory      keyFactory = EncryptUtil.getKeyFactory(Algorithm.ECDSA);
+        Signature       verify     = EncryptUtil.getSignature(Algorithm.SHA256WITHECDSA);
 
         boolean verified = true;
 
@@ -197,11 +195,11 @@ public class Transaction {
             // 准备签名数据
             preparedSignature(trimmedTxCopy, txCopyInput, previousTx);
             // 获取公钥
-            PublicKey publicKey = getPublicKey(txCopyInput.getPublicKey(), ecSpec, keyFactory);
+            PublicKey publicKey = getPublicKey(this.inputs[txCopyInputIndex].getUncompressedPublicKey(), ecSpec, keyFactory);
             // 验签
             verify.initVerify(publicKey);
             verify.update(trimmedTxCopy.getTxId());
-            if (verify.verify(this.inputs[txCopyInputIndex].getSignature())) {
+            if (!verify.verify(this.inputs[txCopyInputIndex].getSignature())) {
                 verified = false;
             }
         }
@@ -212,20 +210,20 @@ public class Transaction {
     /**
      * 根据公钥hash获取公钥
      *
-     * @param publicKeyHash 公钥hash
-     * @param ecSpec        椭圆曲线参数
-     * @param keyFactory    KeyFactory
+     * @param uncompressedPublicKey 未压缩公钥
+     * @param ecSpec                椭圆曲线参数
+     * @param keyFactory            KeyFactory
      * @return 公钥
      */
-    private PublicKey getPublicKey(byte[] publicKeyHash, ECParameterSpec ecSpec, KeyFactory keyFactory) throws InvalidKeySpecException {
+    private PublicKey getPublicKey(byte[] uncompressedPublicKey, ECParameterSpec ecSpec, KeyFactory keyFactory) throws InvalidKeySpecException {
         // publicKeyHash: [0x04, x coord of point (32 bytes), y coord of point (32 bytes)]
-        // 第一个字节为 0x04 表示非压缩
+        // 第一个字节为 0x04
         byte[] x = new byte[32];
         byte[] y = new byte[32];
-        System.arraycopy(publicKeyHash, 1, x, 0, 32);
-        System.arraycopy(publicKeyHash, 33, y, 0, 32);
+        System.arraycopy(uncompressedPublicKey, 1, x, 0, 32);
+        System.arraycopy(uncompressedPublicKey, 33, y, 0, 32);
         // 为椭圆曲线添加(x,y)点参数
-        ECPoint         ecPoint = ecSpec.getCurve().createPoint(new BigInteger(x), new BigInteger(y));
+        ECPoint         ecPoint = ecSpec.getCurve().createPoint(new BigInteger(1, x), new BigInteger(1, y));
         ECPublicKeySpec keySpec = new ECPublicKeySpec(ecPoint, ecSpec);
         return keyFactory.generatePublic(keySpec);
     }
@@ -242,12 +240,12 @@ public class Transaction {
         int      txCopyOutputIndex = txCopyInput.getTxOutputIndex();
         TxOutput previousTxOutput  = previousTx.outputs[txCopyOutputIndex];
         // 设置交易副本的输入公钥, 为了二次确认输入副本中还不应有签名, 设置签名为null
-        txCopyInput.setPublicKey(previousTxOutput.getPublicKeyHash());
+        txCopyInput.setUncompressedPublicKey(previousTxOutput.getUncompressedPublicKey());
         txCopyInput.setSignature(null);
         // 设置交易副本ID, 即包含公钥而不含签名的交易hash
         trimmedTxCopy.setTxId(trimmedTxCopy.hash());
         // 重置交易副本输入为null, 防止对后面的交易输入产生影响
-        txCopyInput.setPublicKey(null);
+        txCopyInput.setUncompressedPublicKey(null);
     }
 
     /**
@@ -259,14 +257,14 @@ public class Transaction {
      */
     public Transaction trimmedTxCopy() {
         // 交易输入, 签名与公钥设为null
-        TxInput[] inputs = new TxInput[this.inputs.length];
+        TxInput[] inputs = {};
         for (TxInput input : this.inputs) {
             inputs = ArrayUtils.add(inputs, new TxInput(input.getTxId(), input.getTxOutputIndex(), null, null));
         }
         // 交易输出
-        TxOutput[] outputs = new TxOutput[this.outputs.length];
+        TxOutput[] outputs = {};
         for (TxOutput output : this.outputs) {
-            outputs = ArrayUtils.add(outputs, new TxOutput(output.getValue(), output.getPublicKeyHash()));
+            outputs = ArrayUtils.add(outputs, new TxOutput(output.getValue(), output.getUncompressedPublicKey()));
         }
         // 返回交易副本
         return new Transaction(this.txId, inputs, outputs);

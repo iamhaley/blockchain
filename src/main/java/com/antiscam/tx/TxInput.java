@@ -28,9 +28,9 @@ public class TxInput {
      */
     private byte[] signature;
     /**
-     * SHA256(公钥)哈希值
+     * 未压缩公钥
      */
-    private byte[] publicKey;
+    private byte[] uncompressedPublicKey;
 
     private TxInput() {
     }
@@ -38,16 +38,16 @@ public class TxInput {
     /**
      * 构造交易输入
      *
-     * @param txId          交易Id
-     * @param txOutputIndex 交易输出索引
-     * @param signature     签名
-     * @param publicKey     公钥
+     * @param txId                  交易Id
+     * @param txOutputIndex         交易输出索引
+     * @param signature             签名
+     * @param uncompressedPublicKey 未压缩公钥
      */
-    TxInput(byte[] txId, int txOutputIndex, byte[] signature, byte[] publicKey) {
+    TxInput(byte[] txId, int txOutputIndex, byte[] signature, byte[] uncompressedPublicKey) {
         this.txId = txId;
         this.txOutputIndex = txOutputIndex;
         this.signature = signature;
-        this.publicKey = publicKey;
+        this.uncompressedPublicKey = uncompressedPublicKey;
     }
 
     /**
@@ -57,7 +57,7 @@ public class TxInput {
      * @return true: 是, false: 不是
      */
     public boolean usesKey(byte[] publicKeyHash) {
-        byte[] lockingHash = EncryptUtil.hash(this.publicKey, Algorithm.RIPEMD160);
+        byte[] lockingHash = EncryptUtil.hash(EncryptUtil.hash(this.uncompressedPublicKey, Algorithm.SHA256), Algorithm.RIPEMD160);
         return Arrays.equals(lockingHash, publicKeyHash);
     }
 
@@ -65,7 +65,7 @@ public class TxInput {
     public String toString() {
         try {
             return "txId:" + ByteUtil.toString(txId) + ",txOutputIndex:" + txOutputIndex + ",signature:"
-                    + ByteUtil.toString(signature) + ",publicKey:" + ByteUtil.toString(publicKey);
+                    + ByteUtil.toString(signature) + ",uncompressedPublicKey:" + ByteUtil.toString(uncompressedPublicKey);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return super.toString();
@@ -91,12 +91,12 @@ public class TxInput {
     }
 
     /**
-     * Getter for property 'publicKey'.
+     * Getter for property 'uncompressedPublicKey'.
      *
-     * @return Value for property 'publicKey'.
+     * @return Value for property 'uncompressedPublicKey'.
      */
-    public byte[] getPublicKey() {
-        return ArrayUtils.clone(publicKey);
+    public byte[] getUncompressedPublicKey() {
+        return uncompressedPublicKey;
     }
 
     /**
@@ -118,11 +118,11 @@ public class TxInput {
     }
 
     /**
-     * Setter for property 'publicKey'.
+     * Setter for property 'uncompressedPublicKey'.
      *
-     * @param publicKey Value to set for property 'publicKey'.
+     * @param uncompressedPublicKey Value to set for property 'uncompressedPublicKey'.
      */
-    public void setPublicKey(byte[] publicKey) {
-        this.publicKey = ArrayUtils.clone(publicKey);
+    public void setUncompressedPublicKey(byte[] uncompressedPublicKey) {
+        this.uncompressedPublicKey = ArrayUtils.clone(uncompressedPublicKey);
     }
 }

@@ -23,7 +23,7 @@ public class Coinbase extends Transaction {
 
         Wallet wallet = WalletHandler.getWallet(toAddress);
 
-        TxInput input = new TxInput(txId, -1, null, wallet.getPublicKey());
+        TxInput input = new TxInput(txId, -1, null, wallet.getUncompressedPublicKey());
         this.inputs = new TxInput[]{input};
 
         TxOutput output = new TxOutput(Constant.SUBSIDIES, toAddress);

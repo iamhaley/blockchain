@@ -1,8 +1,9 @@
 package com.antiscam.tx;
 
+import com.antiscam.enums.Algorithm;
 import com.antiscam.util.ByteUtil;
+import com.antiscam.util.EncryptUtil;
 import com.antiscam.wallet.WalletHandler;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -19,9 +20,9 @@ public class TxOutput {
      */
     private int    value;
     /**
-     * RipeMD160(SHA256(公钥))哈希值
+     * 未压缩公钥
      */
-    private byte[] publicKeyHash;
+    private byte[] uncompressedPublicKey;
 
     private TxOutput() {
     }
@@ -29,12 +30,12 @@ public class TxOutput {
     /**
      * 构造交易输出
      *
-     * @param value         价值
-     * @param publicKeyHash 公钥hash
+     * @param value                 价值
+     * @param uncompressedPublicKey 未压缩公钥
      */
-    TxOutput(int value, byte[] publicKeyHash) {
+    TxOutput(int value, byte[] uncompressedPublicKey) {
         this.value = value;
-        this.publicKeyHash = publicKeyHash;
+        this.uncompressedPublicKey = uncompressedPublicKey;
     }
 
     /**
@@ -45,7 +46,7 @@ public class TxOutput {
      */
     TxOutput(int value, String address) {
         this.value = value;
-        this.publicKeyHash = WalletHandler.getPublicKeyHash(address);
+        this.uncompressedPublicKey = WalletHandler.getUncompressedPublicKey(address);
     }
 
     /**
@@ -55,13 +56,13 @@ public class TxOutput {
      * @return true: 匹配, false: 不匹配
      */
     public boolean isLockedWith(byte[] publicKeyHash) {
-        return Arrays.equals(this.publicKeyHash, publicKeyHash);
+        return Arrays.equals(EncryptUtil.hash(EncryptUtil.hash(this.uncompressedPublicKey, Algorithm.SHA256), Algorithm.RIPEMD160), publicKeyHash);
     }
 
     @Override
     public String toString() {
         try {
-            return "value:" + value + ",publicKeyHash" + ByteUtil.toString(publicKeyHash);
+            return "value:" + value + ",uncompressedPublicKey" + ByteUtil.toString(uncompressedPublicKey);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return super.toString();
@@ -78,11 +79,11 @@ public class TxOutput {
     }
 
     /**
-     * Getter for property 'publicKeyHash'.
+     * Getter for property 'uncompressedPublicKey'.
      *
-     * @return Value for property 'publicKeyHash'.
+     * @return Value for property 'uncompressedPublicKey'.
      */
-    public byte[] getPublicKeyHash() {
-        return ArrayUtils.clone(publicKeyHash);
+    public byte[] getUncompressedPublicKey() {
+        return uncompressedPublicKey;
     }
 }

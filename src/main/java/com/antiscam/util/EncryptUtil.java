@@ -1,11 +1,11 @@
 package com.antiscam.util;
 
 import com.antiscam.enums.Algorithm;
+import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECParameterSpec;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.security.*;
 
 /**
  * 加密工具类
@@ -59,6 +59,52 @@ public class EncryptUtil {
      */
     public static byte[] hashTwice(byte[] data, Algorithm algorithm) {
         return hashTwice(data, algorithm, 0, data.length);
+    }
+
+    /**
+     * 获取签名算法
+     *
+     * @param algorithm 算法
+     * @return 签名算法
+     * @throws NoSuchProviderException  异常
+     * @throws NoSuchAlgorithmException 异常
+     */
+    public static Signature getSignature(Algorithm algorithm) throws NoSuchProviderException, NoSuchAlgorithmException {
+        return Signature.getInstance(algorithm.getName(), BouncyCastleProvider.PROVIDER_NAME);
+    }
+
+    /**
+     * 获取密钥工厂
+     *
+     * @param algorithm 算法
+     * @return 密钥工厂
+     * @throws NoSuchProviderException  异常
+     * @throws NoSuchAlgorithmException 异常
+     */
+    public static KeyFactory getKeyFactory(Algorithm algorithm) throws NoSuchProviderException, NoSuchAlgorithmException {
+        return KeyFactory.getInstance(algorithm.getName(), BouncyCastleProvider.PROVIDER_NAME);
+    }
+
+    /**
+     * 创建密钥对
+     *
+     * @return 密钥对
+     */
+    public static KeyPair getKeyPair() {
+        try {
+            // 注册 BC Provider
+            Security.addProvider(new BouncyCastleProvider());
+            // 创建椭圆曲线算法的密钥对生成器, 算法为 ECDSA
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(Algorithm.ECDSA.getName(), BouncyCastleProvider.PROVIDER_NAME);
+            // 椭圆曲线（EC）域参数设定
+            // bitcoin 为什么会选择 secp256k1, 详见：https://bitcointalk.org/index.php?topic=151120.0
+            ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("secp256k1");
+            keyPairGenerator.initialize(ecSpec, new SecureRandom());
+            return keyPairGenerator.generateKeyPair();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

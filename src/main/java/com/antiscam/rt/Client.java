@@ -16,7 +16,7 @@ public class Client {
             System.out.println("coins of " + address + ": " + balance);
         }
 
-//        send("wuming", "xiaokai", 10);
+//        send("1NYvcG5rBYi6kXKou3jqzvUYeEswopmo7", "1B85rM2KLSSNo5nTosyLGuJsZi3CJ9xY15", 10);
 //        int wmBalance2 = getBalance("wuming");
 //        int xkBalance2 = getBalance("xiaokai");
 //        System.out.println("coins of wuming: " + wmBalance2);
