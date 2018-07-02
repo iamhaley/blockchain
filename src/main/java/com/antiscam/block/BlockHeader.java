@@ -24,6 +24,10 @@ class BlockHeader {
      * Pow计数器
      */
     private long   nonce;
+    /**
+     * Merkle树根hash
+     */
+    private byte[] merkleTreeRoot;
 
     private BlockHeader() {
     }
@@ -91,5 +95,23 @@ class BlockHeader {
      */
     void setNonce(long nonce) {
         this.nonce = nonce;
+    }
+
+    /**
+     * Getter for property 'merkleTreeRoot'.
+     *
+     * @return Value for property 'merkleTreeRoot'.
+     */
+    byte[] getMerkleTreeRoot() {
+        return merkleTreeRoot;
+    }
+
+    /**
+     * Setter for property 'merkleTreeRoot'.
+     *
+     * @param merkleTreeRoot Value to set for property 'merkleTreeRoot'.
+     */
+    void setMerkleTreeRoot(byte[] merkleTreeRoot) {
+        this.merkleTreeRoot = merkleTreeRoot;
     }
 }

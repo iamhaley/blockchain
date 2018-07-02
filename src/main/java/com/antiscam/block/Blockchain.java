@@ -304,7 +304,7 @@ public class Blockchain {
      * 从当前区块逆序回溯至创世区块
      * </p>
      */
-    public static class Itr implements Iterator<Block> {
+    public class Itr implements Iterator<Block> {
         /**
          * 当前区块hash
          */

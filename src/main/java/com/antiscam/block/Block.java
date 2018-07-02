@@ -1,9 +1,9 @@
 package com.antiscam.block;
 
+import com.antiscam.enums.Algorithm;
 import com.antiscam.tx.Transaction;
 import com.antiscam.util.AssertUtil;
-import com.antiscam.util.ByteUtil;
-import org.apache.commons.codec.digest.DigestUtils;
+import com.antiscam.util.EncryptUtil;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
@@ -23,6 +23,7 @@ public class Block {
      */
     Transaction[] transactions;
 
+    /** Constructs a new Block. */
     Block() {
     }
 
@@ -90,7 +91,7 @@ public class Block {
     }
 
     /**
-     * 获取交易hash
+     * 获取交易hash, 即交易默克尔根
      *
      * @return 交易hash
      * @throws IOException 异常
@@ -98,11 +99,24 @@ public class Block {
     byte[] getTransactionsHash() throws IOException {
         AssertUtil.check(null != this.transactions && this.transactions.length > 0);
 
-        byte[][] txIds = new byte[this.transactions.length][];
+        byte[][] txHashes = new byte[this.transactions.length][];
         for (Transaction transaction : this.transactions) {
-            txIds = ArrayUtils.add(txIds, transaction.getTxId());
+            byte[] txHash = EncryptUtil.hash(transaction.getTxId(), Algorithm.SHA256);
+            txHashes = ArrayUtils.add(txHashes, txHash);
         }
-        return ByteUtil.toBytes(DigestUtils.sha256Hex(ByteUtil.merge(txIds)));
+        MerkleTree merkleTree = new MerkleTree(txHashes);
+        merkleTree.buildTree();
+        this.header.setMerkleTreeRoot(merkleTree.getRoot());
+        return merkleTree.getRoot();
+    }
+
+    /**
+     * Getter for property 'merkleTreeRoot'.
+     *
+     * @return Value for property 'merkleTreeRoot'.
+     */
+    public byte[] getMerkleTreeRoot() {
+        return this.header.getMerkleTreeRoot();
     }
 
     /**

@@ -7,7 +7,7 @@ package com.antiscam.enums;
  */
 public enum Algorithm {
 
-    SHA256("SHA-256", "SHA256"), RIPEMD160("RipeMD160", "RipeMD160"), ECDSA("ECDSA", "椭圆曲线算法"),
+    SHA256("SHA-256", "SHA256"), RIPEMD160("RipeMD160", "RipeMD160"), ECDSA("ECDSA", "ECDSA"),
     SHA256WITHECDSA("SHA256withECDSA", "SHA256withECDSA");
 
     private String name;

@@ -1,6 +1,7 @@
 package com.antiscam.util;
 
 import com.antiscam.constant.Constant;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,11 +19,28 @@ public class ByteUtil {
      * @return 拷贝数组
      */
     public static byte[] copy(byte[] sourceBytes) {
-        if (null == sourceBytes) {
+        if (null == sourceBytes)
             return null;
-        }
         byte[] desBytes = new byte[sourceBytes.length];
         System.arraycopy(sourceBytes, 0, desBytes, 0, sourceBytes.length);
+        return desBytes;
+    }
+
+    /**
+     * 二维数组拷贝
+     *
+     * @param sourceBytes 源二维数组
+     * @return 拷贝二维数组
+     */
+    public static byte[][] copy(byte[][] sourceBytes) {
+        if (null == sourceBytes)
+            return null;
+        byte[][] desBytes = new byte[][]{};
+        for (byte[] sourceByte : sourceBytes) {
+            if (null == sourceByte)
+                continue;
+            desBytes = ArrayUtils.add(desBytes, sourceByte);
+        }
         return desBytes;
     }
 
@@ -35,9 +53,8 @@ public class ByteUtil {
     public static byte[] merge(byte[]... bytesArray) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         for (byte[] bytes : bytesArray) {
-            if (null == bytes) {
+            if (null == bytes)
                 continue;
-            }
             byteArrayOutputStream.write(bytes);
         }
         return byteArrayOutputStream.toByteArray();
@@ -64,9 +81,8 @@ public class ByteUtil {
         String        temp;
         for (byte byt : bytes) {
             temp = Integer.toHexString(0xFF & byt);
-            if (temp.length() < 2) {
+            if (temp.length() < 2)
                 stringBuilder.append(0);
-            }
             stringBuilder.append(temp.toUpperCase());
         }
         return stringBuilder.toString();

@@ -288,7 +288,7 @@ public class Transaction {
     @Override
     public String toString() {
         try {
-            return "txId:" + ByteUtil.toString(txId) + ",inputs:" + ArrayUtils.toString(inputs) + ",outputs:" + ArrayUtils.toString(outputs);
+            return "txId:" + ByteUtil.toString(txId) + ",isCoinBase:" + isCoinbase() + ",inputs:" + ArrayUtils.toString(inputs) + ",outputs:" + ArrayUtils.toString(outputs);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return super.toString();
