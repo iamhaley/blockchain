@@ -29,6 +29,16 @@ public class Blockchain {
     private String lastBlockHash;
 
     /**
+     * 获取已存在区块链
+     *
+     * @throws Exception 异常
+     */
+    public Blockchain() throws Exception {
+        String lastBlockHash = DBHandler.getLastBlockHash();
+        this.lastBlockHash = lastBlockHash;
+    }
+
+    /**
      * 构造区块链
      *
      * @throws IOException 异常
@@ -54,6 +64,8 @@ public class Blockchain {
     private void add(Block block) throws Exception {
         Pow pow = new Pow(block);
         pow.calculate();
+
+        block.setHeight(DBHandler.getLastBlockHeight());
 
         DBHandler.putBlock(block);
         DBHandler.putLastBlockHash(ByteUtil.toString(block.getHash()));

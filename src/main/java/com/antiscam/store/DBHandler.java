@@ -37,6 +37,18 @@ public class DBHandler {
     }
 
     /**
+     * 获取最新一个区块的高度
+     *
+     * @return 最新一个区块的高度
+     * @throws Exception 异常
+     */
+    public static long getLastBlockHeight() throws Exception {
+        byte[] key             = SerializeUtil.serialize(BlockBucket.BLOCKS_BUCKET_PREFIX + BlockBucket.LAST_BLOCK_HEIGHT_KEY);
+        byte[] lastHeightBytes = DB.getInstance().get(key);
+        return lastHeightBytes == null ? 0L : (long) SerializeUtil.deserialize(lastHeightBytes);
+    }
+
+    /**
      * 存储区块
      *
      * @param block 区块
@@ -46,6 +58,18 @@ public class DBHandler {
         byte[] key   = SerializeUtil.serialize(BlockBucket.BLOCKS_BUCKET_PREFIX + ByteUtil.toString(block.getHash()));
         byte[] value = SerializeUtil.serialize(block);
         DB.getInstance().put(key, value);
+
+        String heightKey = BlockBucket.BLOCKS_BUCKET_PREFIX + BlockBucket.LAST_BLOCK_HEIGHT_KEY;
+        synchronized (heightKey.intern()) {
+            byte[] heightKeyBytes = SerializeUtil.serialize(heightKey);
+            byte[] heightBytes    = DB.getInstance().get(heightKeyBytes);
+            if (null == heightBytes) {
+                DB.getInstance().put(heightKeyBytes, SerializeUtil.serialize(1L));
+            } else {
+                long height = (long) SerializeUtil.deserialize(heightBytes);
+                DB.getInstance().put(heightKeyBytes, SerializeUtil.serialize(++height));
+            }
+        }
     }
 
     /**

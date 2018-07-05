@@ -16,10 +16,11 @@ public class Client {
             System.out.println("coins of " + address + ": " + balance);
         }
 
-//        send("1NYvcG5rBYi6kXKou3jqzvUYeEswopmo7", "1B85rM2KLSSNo5nTosyLGuJsZi3CJ9xY15", 10);
-//        int wmBalance2 = getBalance("wuming");
-//        int xkBalance2 = getBalance("xiaokai");
-//        System.out.println("coins of wuming: " + wmBalance2);
+//        send("12w3Z4Ap8pem424Z3vFxFbKSLzi13747GA", "1533LLk5c7xi59YVgQ651iTrWms692Rrtx", 15);
+//        send("12w3Z4Ap8pem424Z3vFxFbKSLzi13747GA", "1Nj15kL5XRBg2Pe8ngP2b5ycn1CY4xkpWv", 10);
+//        send("12w3Z4Ap8pem424Z3vFxFbKSLzi13747GA", "1JDzqRi7rPWyBdEpreR3mr76vDG42NvdoL", 6);
+//        send("12w3Z4Ap8pem424Z3vFxFbKSLzi13747GA", "1AKgNhmsLqW5Kq9T8V8q9tQbGyKQ9fnJYZ", 1);
+//        System.out.println("coins of 1JwWnLRLrpdoN2UgL8gP1kWyZMvuN4TBP9: " + wmBalance2);
 //        System.out.println("coins of xiaokai: " + xkBalance2);
     }
 

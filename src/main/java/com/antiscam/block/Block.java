@@ -92,6 +92,7 @@ public class Block {
 
     /**
      * 获取交易hash, 即交易默克尔根
+     * 每次获取会重新计算默克尔根
      *
      * @return 交易hash
      * @throws IOException 异常
@@ -129,6 +130,24 @@ public class Block {
     }
 
     /**
+     * 获取区块高度
+     *
+     * @return 区块高度
+     */
+    public long getHeight() {
+        return this.header.getHeight();
+    }
+
+    /**
+     * 获取区块版本号
+     *
+     * @return 版本号
+     */
+    public byte[] getVersion() {
+        return this.header.getVersion();
+    }
+
+    /**
      * Setter for property 'hash'.
      *
      * @param hash Value to set for property 'hash'.
@@ -144,6 +163,15 @@ public class Block {
      */
     void setNonce(long nonce) {
         this.header.setNonce(nonce);
+    }
+
+    /**
+     * Setter for property 'height'.
+     *
+     * @param height Value to set for property 'height'.
+     */
+    void setHeight(long height) {
+        this.header.setHeight(height);
     }
 
 }

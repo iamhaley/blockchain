@@ -20,6 +20,9 @@
 
         <kryo.version>4.0.1</kryo.version>
         <rocksdb.version>5.10.3</rocksdb.version>
+        <netty.version>4.1.25.Final</netty.version>
+        <bouncycastle.version>1.59</bouncycastle.version>
+        <junit.version>4.12</junit.version>
     </properties>
 
     <dependencyManagement>
@@ -45,7 +48,12 @@
             <artifactId>commons-io</artifactId>
             <version>${commons.is.version}</version>
         </dependency>
-
+        <!-- netty -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
         <!-- RocksDb -->
         <dependency>
             <groupId>org.rocksdb</groupId>
@@ -62,13 +70,13 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.59</version>
+            <version>${bouncycastle.version}</version>
         </dependency>
         <!-- 单测 -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

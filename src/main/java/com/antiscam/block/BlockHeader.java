@@ -1,6 +1,9 @@
 package com.antiscam.block;
 
+import com.antiscam.constant.Constant;
 import com.antiscam.util.ByteUtil;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * 块头结构
@@ -25,9 +28,17 @@ class BlockHeader {
      */
     private long   nonce;
     /**
+     * 区块高度
+     */
+    private long   height;
+    /**
      * Merkle树根hash
      */
     private byte[] merkleTreeRoot;
+    /**
+     * 版本号
+     */
+    private byte[] version;
 
     private BlockHeader() {
     }
@@ -38,9 +49,10 @@ class BlockHeader {
      * @param previousHash 前一区块hash值
      * @param timestamp    时间戳
      */
-    BlockHeader(byte[] previousHash, long timestamp) {
+    BlockHeader(byte[] previousHash, long timestamp) throws UnsupportedEncodingException {
         this.previousHash = ByteUtil.copy(previousHash);
         this.timestamp = timestamp;
+        this.version = ByteUtil.toBytes(Constant.VERSION);
     }
 
     /**
@@ -113,5 +125,32 @@ class BlockHeader {
      */
     void setMerkleTreeRoot(byte[] merkleTreeRoot) {
         this.merkleTreeRoot = merkleTreeRoot;
+    }
+
+    /**
+     * Getter for property 'height'.
+     *
+     * @return Value for property 'height'.
+     */
+    public long getHeight() {
+        return this.height;
+    }
+
+    /**
+     * Setter for property 'height'.
+     *
+     * @param height Value to set for property 'height'.
+     */
+    public void setHeight(long height) {
+        this.height = height;
+    }
+
+    /**
+     * Getter for property 'version'.
+     *
+     * @return Value for property 'version'.
+     */
+    public byte[] getVersion() {
+        return ByteUtil.copy(this.version);
     }
 }

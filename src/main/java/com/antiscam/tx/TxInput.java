@@ -1,11 +1,10 @@
 package com.antiscam.tx;
 
 import com.antiscam.enums.Algorithm;
-import com.antiscam.util.ByteUtil;
+import com.antiscam.util.Base58Util;
 import com.antiscam.util.EncryptUtil;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
@@ -63,13 +62,7 @@ public class TxInput {
 
     @Override
     public String toString() {
-        try {
-            return "txId:" + ByteUtil.toString(txId) + ",txOutputIndex:" + txOutputIndex + ",signature:"
-                    + ByteUtil.toString(signature) + ",uncompressedPublicKey:" + ByteUtil.toString(uncompressedPublicKey);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return super.toString();
-        }
+        return "\"txId\": \"" + Base58Util.encode(txId) + "\",\"txOutputIndex\":" + txOutputIndex + ",\"uncompressedPublicKey\": \"" + Base58Util.encode(uncompressedPublicKey) + "\"";
     }
 
     /**

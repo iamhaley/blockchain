@@ -2,10 +2,7 @@ package com.antiscam.tx;
 
 import com.antiscam.block.Blockchain;
 import com.antiscam.enums.Algorithm;
-import com.antiscam.util.AssertUtil;
-import com.antiscam.util.ByteUtil;
-import com.antiscam.util.EncryptUtil;
-import com.antiscam.util.SerializeUtil;
+import com.antiscam.util.*;
 import com.antiscam.wallet.Wallet;
 import com.antiscam.wallet.WalletHandler;
 import org.apache.commons.codec.DecoderException;
@@ -287,12 +284,7 @@ public class Transaction {
 
     @Override
     public String toString() {
-        try {
-            return "txId:" + ByteUtil.toString(txId) + ",isCoinBase:" + isCoinbase() + ",inputs:" + ArrayUtils.toString(inputs) + ",outputs:" + ArrayUtils.toString(outputs);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return super.toString();
-        }
+        return "\"txId\": \"" + Base58Util.encode(txId) + "\",\"isCoinBase\":" + isCoinbase() + ",\"inputs\":" + ArrayUtils.toString(inputs) + ",\"outputs\":" + ArrayUtils.toString(outputs);
     }
 
     /**

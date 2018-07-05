@@ -1,11 +1,10 @@
 package com.antiscam.tx;
 
 import com.antiscam.enums.Algorithm;
-import com.antiscam.util.ByteUtil;
+import com.antiscam.util.Base58Util;
 import com.antiscam.util.EncryptUtil;
 import com.antiscam.wallet.WalletHandler;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
@@ -61,12 +60,7 @@ public class TxOutput {
 
     @Override
     public String toString() {
-        try {
-            return "value:" + value + ",uncompressedPublicKey" + ByteUtil.toString(uncompressedPublicKey);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return super.toString();
-        }
+        return "\"value\":" + value + ",\"uncompressedPublicKey\": \"" + Base58Util.encode(uncompressedPublicKey) + "\"";
     }
 
     /**
